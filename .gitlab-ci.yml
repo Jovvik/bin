@@ -1,0 +1,12 @@
+image: java:8-jdk
+
+pages:
+  script:
+    - mkdir public
+    - ./gradlew run
+    - cp build/index.html public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "kotlin-static-html"
