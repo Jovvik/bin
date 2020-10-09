@@ -1,19 +1,24 @@
+import java.io.PrintWriter
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import java.io.PrintWriter
 
 fun main() {
     PrintWriter("build/index.html").use {
         it.appendHTML().html {
             head {
-                title("Client-server and Kotlin")
+                title("Kbin")
             }
             body {
                 h1 {
-                    +"John Doe"
+                    +"Kbin"
                 }
                 p {
-                    +"I am going to build a Death Star!"
+                    +"This is a pastebin with:"
+                    ul {
+                        li { +"Code syntax highlighting" }
+                        li { +"Custom URLs" }
+                        li { +"Intuitive shortcuts" }
+                    }
                 }
             }
         }
