@@ -1,26 +1,20 @@
 plugins {
-    id("java")
-    kotlin("jvm") version "1.4.0"
-    id("application")
+    kotlin("multiplatform") version "1.4.0" apply false
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+allprojects {
+    version = "0.1.1"
 
-repositories {
-    mavenCentral()
-    jcenter()
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
 }
 
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlinx:kotlinx-html:0.7.2")
-}
+tasks.register<Copy>("stage") {
+    dependsOn("server:build")
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
-}
+    destinationDir = File("build/dist")
 
-application {
-    mainClassName = "MainKt"
+    from(tarTree("server/build/distributions/server-0.1.1.tar"))
 }

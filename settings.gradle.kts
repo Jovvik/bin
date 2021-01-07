@@ -1,2 +1,4 @@
-rootProject.name = "ksc-2020"
+rootProject.name = "kbin"
 
+include("client")
+include("server")
