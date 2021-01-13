@@ -1,7 +1,6 @@
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLTextAreaElement
-import org.w3c.dom.events.Event
 import org.w3c.xhr.XMLHttpRequest
 
 fun main() {

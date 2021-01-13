@@ -80,10 +80,9 @@ fun Application.main() {
             resources("/")
         }
 
-        // TODO: db
-        val keyToText = mutableMapOf<String, String>()
+        val db = DB()
 
-        fun randomUrl(): String {
+        fun randomKey(): String {
             val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
             return (1..16)
                 .map { allowedChars.random() }
@@ -92,17 +91,13 @@ fun Application.main() {
 
         post("/save") {
             val code = call.receiveText()
-            var newKey = randomUrl()
-            while (keyToText.containsKey(newKey)) {
-                newKey = randomUrl()
-            }
-            keyToText[newKey] = code
+            val newKey = db.putCode(code, ::randomKey)
             call.respondText("/code/$newKey")
         }
 
         get("/code/{url}") {
-            val text = keyToText[call.parameters["url"]!!]
-            if (text == null) {
+            val code = db.getCode(call.parameters["url"]!!)
+            if (code == null) {
                 call.respond(HttpStatusCode.NotFound, "Unknown code")
             } else {
                 call.respondHtmlTemplate(MainTemplate()) {
@@ -117,7 +112,7 @@ fun Application.main() {
                     main {
                         pre {
                             code {
-                                +text
+                                +code
                             }
                         }
                     }
