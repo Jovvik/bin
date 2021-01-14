@@ -1,14 +1,30 @@
-import java.sql.*
+import java.io.FileInputStream
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.SQLException
+import java.util.*
 
 private const val TABLE_NAME = "tbl"
-private const val DB_PATH = "build/resources/main/code.db"
+private const val DB_PROPERTIES_PATH = "db.properties"
 
 class DB {
     private lateinit var connection: Connection
+    private val path : String
+    private val name : String
+    private val port : String
+    private val username : String
+    private val password : String
 
     init {
+        val properties = Properties()
+        properties.load(FileInputStream(DB_PROPERTIES_PATH))
+        path = properties.getProperty("db.path")
+        port = properties.getProperty("db.port")
+        username = properties.getProperty("db.username")
+        password = properties.getProperty("db.password")
+        name = properties.getProperty("db.name")
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:$DB_PATH")
+            connection = DriverManager.getConnection("jdbc:mysql://$path:$port/$name", username, password)
             createTable(connection)
         } catch (e: SQLException) {
             println(e.message)
@@ -21,16 +37,16 @@ class DB {
         stmt.execute("""
         CREATE TABLE IF NOT EXISTS $TABLE_NAME (
             code TEXT NOT NULL,
-            key TEXT NOT NULL PRIMARY KEY
+            `key` TEXT NOT NULL
         )
     """.trimIndent())
     }
 
     fun getCode(key: String): String? {
         val stmt = connection.createStatement()
-        val rs = stmt.executeQuery("SELECT code FROM $TABLE_NAME WHERE key=\"$key\"")
-        while (rs.next()) {
-            return rs.getString("code")
+        val rs = stmt.executeQuery("SELECT code FROM $TABLE_NAME WHERE `key`=\"$key\"")
+        if (rs.next()) {
+            return String(Base64.getDecoder().decode(rs.getString("code")))
         }
         return null
     }
@@ -39,9 +55,10 @@ class DB {
         val stmt = connection.createStatement()
         while (true) {
             val key = generateKey()
-            val rs = stmt.executeQuery("SELECT key FROM $TABLE_NAME WHERE key=\"$key\"")
+            val rs = stmt.executeQuery("SELECT `key` FROM $TABLE_NAME WHERE `key`=\"$key\"")
             if (!rs.next()) {
-                stmt.execute("INSERT INTO $TABLE_NAME (code, key) VALUES (\'$code\', \"$key\")")
+                val escapedCode = String(Base64.getEncoder().encode(code.toByteArray()))
+                stmt.execute("INSERT INTO $TABLE_NAME (code, `key`) VALUES (\'$escapedCode\', \"$key\")")
                 return key
             }
         }
