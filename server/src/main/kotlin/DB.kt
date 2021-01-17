@@ -32,6 +32,18 @@ class DB {
         }
     }
 
+    private fun checkConnection() {
+        if (connection.isClosed) {
+            println("Connection to MySQL is closed.")
+            try {
+                connection = DriverManager.getConnection("jdbc:mysql://$path:$port/$name", username, password)
+            } catch (e: SQLException) {
+                println(e.message)
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun createTable(connection: Connection) {
         val stmt = connection.createStatement()
         stmt.execute("""
@@ -43,6 +55,7 @@ class DB {
     }
 
     fun getCode(key: String): String? {
+        checkConnection()
         val stmt = connection.createStatement()
         val rs = stmt.executeQuery("SELECT code FROM $TABLE_NAME WHERE `key`=\"$key\"")
         if (rs.next()) {
@@ -52,6 +65,7 @@ class DB {
     }
 
     fun putCode(code: String, generateKey: () -> String): String {
+        checkConnection()
         val stmt = connection.createStatement()
         while (true) {
             val key = generateKey()
