@@ -11,7 +11,6 @@ fun main() {
             http.open("POST", "/save")
             http.setRequestHeader("Content-Type", "text/plain")
             http.onreadystatechange = {
-                println(http.responseText)
                 document.location!!.href += http.responseText.drop(1)
                 Unit // why are you retarded?
             }
