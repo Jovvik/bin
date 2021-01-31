@@ -1,4 +1,4 @@
-rootProject.name = "kbin"
+rootProject.name = "bin"
 
 include("client")
 include("server")
