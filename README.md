@@ -1,8 +1,7 @@
-# kcs-2020
+# bin
 
-# Задание 0 (10 баллов)
+A simple pastebin-like service with syntax highlighting. Hosted _(soon)_ on bin.mmikhaylov.xyz.
 
-- Сделать fork репозитория
-- Изменить `Main.kt` так, чтобы сгенерировалось описание проекта
+## TODO
 
-Требования к результирующему `html` отсутствуют. Использование `CSS` не требуется. 
+- [ ] Garbage collection
