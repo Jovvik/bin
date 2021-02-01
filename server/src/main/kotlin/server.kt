@@ -5,6 +5,7 @@ import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlin.text.Charsets
 import kotlinx.html.*
 
 fun Application.main() {
@@ -74,11 +75,11 @@ fun Application.main() {
 
         fun randomKey(): String {
             val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-            return (1..16).map { allowedChars.random() }.joinToString("")
+            return (1..8).map { allowedChars.random() }.joinToString("")
         }
 
         post("/save") {
-            val code = call.receiveText()
+            val code = String(call.receiveText().toByteArray(Charsets.ISO_8859_1))
             val newKey = db.putCode(code, ::randomKey)
             call.respondText("/code/$newKey")
         }
