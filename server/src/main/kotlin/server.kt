@@ -42,6 +42,11 @@ fun Application.main() {
                     }
 
                     script { insert(script) }
+
+                    meta {
+                        name = "robots"
+                        content = "none"
+                    }
                 }
 
                 body {
@@ -53,24 +58,6 @@ fun Application.main() {
             }
         }
 
-        get("/") {
-            call.respondHtmlTemplate(MainTemplate()) {
-                script { src = "/client.js" }
-                button {
-                    id = "save-button"
-                    span(classes = "far fa-save") {}
-                }
-                main {
-                    textArea {
-                        id = "text-input"
-                        autoFocus = true
-                        placeholder = "Type your code here"
-                    }
-                }
-            }
-        }
-        static("/") { resources("/") }
-
         val db = DB()
 
         fun randomKey(): String {
@@ -78,25 +65,45 @@ fun Application.main() {
             return (1..8).map { allowedChars.random() }.joinToString("")
         }
 
-        post("/save") {
-            val code = String(call.receiveText().toByteArray(Charsets.ISO_8859_1))
-            val newKey = db.putCode(code, ::randomKey)
-            call.respondText("/code/$newKey")
-        }
-
-        get("/code/{url}") {
-            val code = db.getCode(call.parameters["url"]!!)
-            if (code == null) {
-                call.respond(HttpStatusCode.NotFound, "Unknown code")
-            } else {
+        host("bin.maximmikhaylov.com") {
+            get("/") {
                 call.respondHtmlTemplate(MainTemplate()) {
-                    script { +"hljs.initHighlightingOnLoad()" }
+                    script { src = "/client.js" }
                     button {
-                        id = "new-button"
-                        onClick = "window.location='/'"
-                        span(classes = "fas fa-plus") {}
+                        id = "save-button"
+                        span(classes = "far fa-save") {}
                     }
-                    main { pre { code { +code } } }
+                    main {
+                        textArea {
+                            id = "text-input"
+                            autoFocus = true
+                            placeholder = "Type your code here"
+                        }
+                    }
+                }
+            }
+            static("/") { resources("/") }
+
+            post("/save") {
+                val code = String(call.receiveText().toByteArray(Charsets.ISO_8859_1))
+                val newKey = db.putCode(code, ::randomKey)
+                call.respondText("/code/$newKey")
+            }
+
+            get("/code/{url}") {
+                val code = db.getCode(call.parameters["url"]!!)
+                if (code == null) {
+                    call.respond(HttpStatusCode.NotFound, "Unknown code")
+                } else {
+                    call.respondHtmlTemplate(MainTemplate()) {
+                        script { +"hljs.initHighlightingOnLoad()" }
+                        button {
+                            id = "new-button"
+                            onClick = "window.location='/'"
+                            span(classes = "fas fa-plus") {}
+                        }
+                        main { pre { code { +code } } }
+                    }
                 }
             }
         }
