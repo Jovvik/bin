@@ -6,3 +6,4 @@ A simple pastebin-like service with syntax highlighting. Hosted on bin.maximmikh
 
 - [ ] Garbage collection
 - [ ] CLI
+- [ ] Encryption
